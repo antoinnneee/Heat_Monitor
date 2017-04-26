@@ -8,10 +8,10 @@ myGitem::myGitem(const QColor &color, int x, int y)
     this->x = x;
     this->y = y;
     this->color = color;
-//    setZValue((x + y) % 2);
+    setZValue((x + y) % 2);
 
-//    setFlags(ItemIsSelectable | ItemIsMovable);
-//    setAcceptHoverEvents(true);
+    setFlags(ItemIsSelectable | ItemIsMovable);
+    setAcceptHoverEvents(true);
 }
 
 QRectF myGitem::boundingRect() const
@@ -26,7 +26,7 @@ void myGitem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 {
     Q_UNUSED(widget);
 
-    QColor fillColor = (option->state & QStyle::State_Selected) ? color.dark(150) : color;
+    QColor fillColor = (option->state & QStyle::State_Selected) ? color.blue() : color;
     if (option->state & QStyle::State_MouseOver)
         fillColor = fillColor.light(125);
 
