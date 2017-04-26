@@ -4,6 +4,8 @@
 #include <QGraphicsEllipseItem>
 #include "mygitem.h"
 #include <QTimer>
+#include <QtSerialPort/QSerialPort>
+#include <qdebug.h>
 
 
 //class GraphicsView : public QGraphicsView
@@ -28,9 +30,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    temperature = 0;
     scene = new QGraphicsScene(this);
+    serial = new QSerialPort(this);
 
-    int nbitem = 4;
+    openSerialPort();
+    connect(serial, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
+            this, &MainWindow::handleError);
+    connect(serial, &QSerialPort::readyRead, this, &MainWindow::readData);
+
+
+    int nbitem = 0;
     int posx = 0;
     int posy = 0;
     m_oldy = scene->height()/2;
@@ -47,40 +57,34 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QGraphicsView *view = new QGraphicsView(scene);
     view->setGeometry(ui->gridLayout->geometry());
-
     ui->gridLayout->addWidget(view);
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(myupdate()));
     connect(timer, SIGNAL(timeout()), timer, SLOT(start()));
-    timer->start(100);
-
+    timer->start(10);
 }
 
 void MainWindow::myupdate()
 {
-    static int count = 0;
     static int posx = 0;
+    static int count = 0;
     static int posy = 0 ;
     static int moyarray[100] ;
     int moyenne = 0;
-
-
-    posy = qrand() % 100 + scene->height()/2;
-    posx += 1;
-
-
-    QColor color(Qt::black);
-
+    posx ++;
+    /*if(serial->isOpen())
+    qDebug() << "update open";
+    else
+    qDebug() << "update not open";*/
+    readData();
+     posy =500-temperature/10;
+    //qDebug() << temperature;
+    QColor color(Qt::blue);
     QGraphicsLineItem *line= new QGraphicsLineItem(m_olx, m_oldy, posx, posy);
-//    QGraphicsEllipseItem *point = new QGraphicsEllipseItem(posx, posy, 2, 2);
-
-//    scene->children()
-//    line->setPos(QPointF(oldx, oldy));
-//    item->setPos(QPointF(posx, posy));
-//    scene->addItem(point);
-//    scene->addItem(item);
+    //QGraphicsItem *item = new myGitem(color, posx, posy);
+    //item->setPos(QPointF(posx, posy));
     scene->addItem(line);
-    moyarray[count%100] = posy;
+    moyarray[count%100] = temperature;
     count++;
     m_olx = posx;
     m_oldy = posy;
@@ -91,11 +95,8 @@ void MainWindow::myupdate()
     {
         moyenne = moyenne + moyarray[i];
     }
-    // moyenne = moyenne / 100
-//    ui->lcdNumber->display(moyenne/100);
-//    oldx = posx;
-//    oldy = posy;
-
+//     moyenne = moyenne / 100;
+     ui->lcdNumber->display(moyenne/100);
 }
 
 MainWindow::~MainWindow()
@@ -120,8 +121,68 @@ void MainWindow::on_pushButton_2_clicked()
 {
     static int state = 0;
     state++;
-//    QGraphicsLineItem *line= new QGraphicsLineItem(ui->x1->value(), ui->y1->value(), ui->x2->value(), ui->y2->value());
+    int posx = ui->tex->toPlainText().toInt();
+    int posy = ui->tey->toPlainText().toInt();
+    QColor color(Qt::black);
+    QGraphicsItem *item = new myGitem(color, posx, posy);
+    item->setPos(QPointF(posx, posy));
+    scene->addItem(item);
 
-    scene->addItem(line);
 
 }
+void MainWindow::openSerialPort()
+{
+
+    serial->setPortName("COM4");
+    serial->setBaudRate(115200);
+    serial->setDataBits(QSerialPort::Data8);
+    serial->setParity(QSerialPort::NoParity);
+    serial->setStopBits(QSerialPort::OneStop);
+    serial->setFlowControl(QSerialPort::NoFlowControl);
+    if(!serial->open(QIODevice::ReadWrite))
+    {
+        qDebug()<<"erreur";
+    }
+
+}
+
+void MainWindow::closeSerialPort()
+{
+    if (serial->isOpen())
+        serial->close();
+    //qDebug()<<"close";
+}
+
+void MainWindow::readData()
+{
+    char buffer[5]={'0','0','0','0','0'};
+    serial->write("$");
+    _sleep(100);
+    serial->readLine(buffer, 5);
+    QString data=buffer;
+    if(data.toInt()!=0)
+    temperature= data.toInt() ;
+    qDebug() << temperature ;
+
+}
+
+void MainWindow::handleError(QSerialPort::SerialPortError error)
+{
+    if (error == QSerialPort::ResourceError) {
+        qDebug() << serial->errorString();
+        closeSerialPort();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
