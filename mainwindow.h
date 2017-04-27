@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsView>
-
+#include "graphmoyenneline.h"
 namespace Ui {
 class MainWindow;
 }
@@ -17,15 +17,26 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked();
     void myupdate();
     void on_pushButton_2_clicked();
+    void setmoyenne(int moyenne);
+    void on_cBscroll_toggled(bool checked);
+    void init_graph();
+    void on_send_clicked();
 
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
+    QGraphicsLineItem *moyline;
+    QTimer *updateTimer;
+    QGraphicsView *view;
+    QGraphicsLineItem *midline;
+    int temperature;
+    int *moytab;
+    int moyenne;
     int m_olx;
     int m_oldy;
+    bool m_stop;
 
 };
 
