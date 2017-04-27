@@ -21,7 +21,7 @@ private slots:
     void on_pushButton_2_clicked();
     void setmoyenne(int moyenne);
     void on_cBscroll_toggled(bool checked);
-
+    void init_graph();
     void on_send_clicked();
 
 private:
@@ -30,6 +30,7 @@ private:
     QGraphicsLineItem *moyline;
     QTimer *updateTimer;
     QGraphicsView *view;
+    QGraphicsLineItem *midline;
     int temperature;
     int *moytab;
     int moyenne;

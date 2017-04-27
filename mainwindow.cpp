@@ -30,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    scene = new QGraphicsScene(this);
     moytab = (int*) malloc(sizeof(int) * 100);
     int i = 100;
 
@@ -39,21 +38,37 @@ MainWindow::MainWindow(QWidget *parent) :
         moytab[i] = 0;
     }
     m_stop = 0;
-    m_oldy = scene->height()/2;
+    midline = NULL;
     m_olx = 0;
 
-    scene = new QGraphicsScene(this);
-    view = new QGraphicsView(scene);
-    updateTimer = new QTimer(this);
     moyline = NULL;
+    scene = new QGraphicsScene(this);
 
-    view->setGeometry(ui->gridLayout->geometry());
-    ui->gridLayout->addWidget(view);
+    updateTimer = new QTimer(this);
+    view = new QGraphicsView(scene);
+//    midline = new QGraphicsLineItem(ui->gridLayout->geometry().x(), ui->gridLayout->geometry().height()/2, ui->gridLayout->geometry().width(), ui->gridLayout->geometry().height()/2);
 
+    init_graph();
 
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(myupdate()));
 
-    updateTimer->start(10);
+
+    updateTimer->start(1);
+}
+
+void MainWindow::init_graph()
+{
+    if (scene)
+        delete scene;
+    scene = new QGraphicsScene(this);
+    if (view)
+        delete view;
+
+    view = new QGraphicsView(scene);
+    m_oldy = scene->height()/2;
+    view->setGeometry(ui->gridLayout->geometry());
+    ui->gridLayout->addWidget(view);
+
 }
 
 void MainWindow::myupdate()
@@ -64,13 +79,26 @@ void MainWindow::myupdate()
     moyenne = 0;
     QGraphicsLineItem *line;
     temperature = qrand() % 150;
-    posy = temperature;
+    posy = ui->gridLayout->geometry().height()/2 -temperature;
     posx += 1;
 
     if (count > 2 && posx > 2)
     {
         line = new QGraphicsLineItem(m_olx, m_oldy, posx, posy);
         scene->addItem(line);
+    }
+    else
+    {
+
+        QPen mpen;
+        mpen.setColor(Qt::gray);
+        if (midline)
+            delete midline;
+
+        midline = new QGraphicsLineItem(ui->gridLayout->geometry().x(), ui->gridLayout->geometry().height()/2, ui->gridLayout->geometry().width(), ui->gridLayout->geometry().height()/2);
+
+        midline->setPen(mpen);
+        scene->addItem(midline);
     }
     moytab[count%100] = posy;
     count++;
@@ -87,12 +115,14 @@ void MainWindow::myupdate()
     if (ui->cBscroll->isChecked())
     {
         view->horizontalScrollBar()->setValue(view->horizontalScrollBar()->maximum());
+        midline->moveBy(1, 0);
     }
     else
     {
         if (posx > ui->gridLayout->geometry().width() )
         {
             scene->clear();
+            midline = NULL;
             moyline = NULL;
             posx = 0;
         }
@@ -111,6 +141,7 @@ void    MainWindow::setmoyenne(int moyenne)
     moyline->setPen(moypen);
     //    moyline = new graphmoyenneLine(ui->gridLayout->geometry().x(), moyenne, (m_olx > ui->gridLayout->geometry().width()) ? m_olx : ui->gridLayout->geometry().width(), moyenne);
     scene->addItem(moyline);
+
 }
 
 
@@ -138,16 +169,9 @@ void MainWindow::on_cBscroll_toggled(bool checked)
 {
     if (!checked)
     {
-        if (scene)
-            delete scene;
+        init_graph();
 
-        if (view)
-            delete view;
-        scene = new QGraphicsScene(this);
-        view = new QGraphicsView(scene);
 
-        view->setGeometry(ui->gridLayout->geometry());
-        ui->gridLayout->addWidget(view);
     }
 }
 
