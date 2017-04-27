@@ -5,7 +5,9 @@
 #include "mygitem.h"
 #include <QTimer>
 #include <QDebug>
-
+#include <QScrollBar>
+#include <QPen>
+#include "graphmoyenneline.h"
 //class GraphicsView : public QGraphicsView
 //{
 //    Q_OBJECT
@@ -28,19 +30,44 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    scene = new QGraphicsScene(this);
+    moytab = (int*) malloc(sizeof(int) * 100);
+    int i = 100;
 
-    m_oldy = scene->height()/2;
+    while (i--)
+    {
+        moytab[i] = 0;
+    }
+    m_stop = 0;
+    midline = NULL;
     m_olx = 0;
 
-    QGraphicsView *view = new QGraphicsView(scene);
-    view->setGeometry(ui->gridLayout->geometry());
+    moyline = NULL;
+    scene = new QGraphicsScene(this);
 
+    updateTimer = new QTimer(this);
+    view = new QGraphicsView(scene);
+//    midline = new QGraphicsLineItem(ui->gridLayout->geometry().x(), ui->gridLayout->geometry().height()/2, ui->gridLayout->geometry().width(), ui->gridLayout->geometry().height()/2);
+
+    init_graph();
+
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(myupdate()));
+
+
+    updateTimer->start(1);
+}
+
+void MainWindow::init_graph()
+{
+    if (scene)
+        delete scene;
+    scene = new QGraphicsScene(this);
+    if (view)
+        delete view;
+
+    view = new QGraphicsView(scene);
+    m_oldy = scene->height()/2;
+    view->setGeometry(ui->gridLayout->geometry());
     ui->gridLayout->addWidget(view);
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(myupdate()));
-    connect(timer, SIGNAL(timeout()), timer, SLOT(start()));
-    timer->start(1);
 
 }
 
@@ -49,62 +76,106 @@ void MainWindow::myupdate()
     static int count = 0;
     static int posx = 0;
     static int posy = 0 ;
-    static int moyarray[100] ;
-    int moyenne = 0;
+    moyenne = 0;
     QGraphicsLineItem *line;
-
-    posy = qrand() % 100 + scene->height()/2;
+    temperature = qrand() % 150;
+    posy = ui->gridLayout->geometry().height()/2 -temperature;
     posx += 1;
 
-    if (count > 2)
+    if (count > 2 && posx > 2)
     {
         line = new QGraphicsLineItem(m_olx, m_oldy, posx, posy);
         scene->addItem(line);
     }
-    moyarray[count%100] = posy;
+    else
+    {
+
+        QPen mpen;
+        mpen.setColor(Qt::gray);
+        if (midline)
+            delete midline;
+
+        midline = new QGraphicsLineItem(ui->gridLayout->geometry().x(), ui->gridLayout->geometry().height()/2, ui->gridLayout->geometry().width(), ui->gridLayout->geometry().height()/2);
+
+        midline->setPen(mpen);
+        scene->addItem(midline);
+    }
+    moytab[count%100] = posy;
     count++;
     m_olx = posx;
     m_oldy = posy;
 
     int i;
     i = 100;
+
     while(i--)
     {
-        moyenne = moyenne + moyarray[i];
+        moyenne = moyenne + moytab[i];
     }
-    ui->lcdNumber->display( moyenne / (count < 100 ? count : 100));
-    qDebug()<< scene->width();
-    if (posx > ui->gridLayout->geometry().width() )
+    if (ui->cBscroll->isChecked())
     {
-        scene->clear();
-        posx = 0;
+        view->horizontalScrollBar()->setValue(view->horizontalScrollBar()->maximum());
+        midline->moveBy(1, 0);
     }
+    else
+    {
+        if (posx > ui->gridLayout->geometry().width() )
+        {
+            scene->clear();
+            midline = NULL;
+            moyline = NULL;
+            posx = 0;
+        }
+    }
+    setmoyenne(moyenne / ((count < 100) ? count : 100));
 }
+void    MainWindow::setmoyenne(int moyenne)
+{
+
+    ui->lcdNumber->display(moyenne);
+    if (moyline)
+        delete moyline;
+    QPen moypen;
+    moypen.setColor(Qt::red);
+    moyline = new QGraphicsLineItem(ui->gridLayout->geometry().x(), moyenne, (m_olx > ui->gridLayout->geometry().width()) ? m_olx : ui->gridLayout->geometry().width(), moyenne);
+    moyline->setPen(moypen);
+    //    moyline = new graphmoyenneLine(ui->gridLayout->geometry().x(), moyenne, (m_olx > ui->gridLayout->geometry().width()) ? m_olx : ui->gridLayout->geometry().width(), moyenne);
+    scene->addItem(moyline);
+
+}
+
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-//    if (ui->graphicsView->isHidden())
-//    {
-////        ui->graphicsView->show();
-//    }
-//    else
-//    {
-////        ui->graphicsView->hide();
-
-//    }
-}
 
 void MainWindow::on_pushButton_2_clicked()
 {
     static int state = 0;
     state++;
-//    QGraphicsLineItem *line= new QGraphicsLineItem(ui->x1->value(), ui->y1->value(), ui->x2->value(), ui->y2->value());
+    if (state%2)
+    {
+        disconnect(updateTimer, SIGNAL(timeout()), this, SLOT(myupdate()));
+    }
+    else
+    {
+        connect(updateTimer, SIGNAL(timeout()), this, SLOT(myupdate()));
+    }
+}
 
-//    scene->addItem(line);
+void MainWindow::on_cBscroll_toggled(bool checked)
+{
+    if (!checked)
+    {
+        init_graph();
+
+
+    }
+}
+
+void MainWindow::on_send_clicked()
+{
 
 }

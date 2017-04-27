@@ -25,10 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    mygitem.cpp
+    mygitem.cpp \
+    graphmoyenneline.cpp
 
 HEADERS  += mainwindow.h \
-    mygitem.h
+    mygitem.h \
+    graphmoyenneline.h
 
 FORMS    += mainwindow.ui
 
