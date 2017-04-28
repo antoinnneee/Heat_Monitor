@@ -80,7 +80,7 @@ void MainWindow::myupdate()
     static int posy = 0 ;
     moyenne = 0;
     QGraphicsLineItem *line;
-    temperature = qrand() % 200 - temperature;
+    temperature = qrand() % 200;
     posy = ui->gridLayout->geometry().height()/2 -temperature;
     posx += 1;
 

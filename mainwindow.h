@@ -7,7 +7,7 @@
 
 #include "graphmoyenneline.h"
 
-#define NBVALMOY 1000
+#define NBVALMOY 250
 
 namespace Ui {
 class MainWindow;
