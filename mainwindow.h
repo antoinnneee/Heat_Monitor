@@ -3,7 +3,12 @@
 
 #include <QMainWindow>
 #include <QGraphicsView>
+#include <QPainterPath>
+
 #include "graphmoyenneline.h"
+
+#define NBVALMOY 1000
+
 namespace Ui {
 class MainWindow;
 }
@@ -23,11 +28,15 @@ private slots:
     void on_cBscroll_toggled(bool checked);
     void init_graph();
     void on_send_clicked();
+    void update_graph(int val);
+
 
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
     QGraphicsLineItem *moyline;
+    QGraphicsPathItem *moypath;
+    QPainterPath *pmoy;
     QTimer *updateTimer;
     QGraphicsView *view;
     QGraphicsLineItem *midline;
