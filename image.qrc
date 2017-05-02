@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>driftnet-1.png</file>
+    </qresource>
+</RCC>
