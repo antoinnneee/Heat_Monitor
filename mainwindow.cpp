@@ -2,37 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QGraphicsView>
 #include <QGraphicsEllipseItem>
-<<<<<<< HEAD
-#include <QTimer>
-#include <QDebug>
-#include <QScrollBar>
-#include <QPen>
-#include <QPainterPath>
-#include <QFuture>
-#include <QtConcurrent>
-#include <QtSerialPort/QSerialPort>
-#include "serialengine.h"
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-
-     QThread* thread = new QThread;
-    serial = new serialengine();
-    serial->moveToThread(thread);
-    QObject::connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
-    thread->start();
-    serial->start();
-    m_dep_x = DEP_X;
-    m_nbvalmoy = ui->sB_nbMoyenne->value();
-    this->setWindowTitle("HeatMonitor");
-    this->setWindowIcon(QIcon(":/icon/driftnet-1.png"));
-
-    moytab = (int*) malloc(sizeof(int) * NBVALMOY);
-    int i = m_nbvalmoy;
-=======
 #include "mygitem.h"
 #include <QTimer>
 #include <QtSerialPort/QSerialPort>
@@ -40,6 +9,12 @@ MainWindow::MainWindow(QWidget *parent) :
 #include <QScrollBar>
 #include <QPen>
 #include <QPainterPath>
+#include "serialengine.h"
+#include <QtConcurrent>
+#include <QFuture>
+
+
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -60,53 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
     moytab = (int*) malloc(sizeof(int) * NBVALMOY);
     int i = NBVALMOY;
 
->>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
     while (i--)
     {
         moytab[i] = 0;
     }
-<<<<<<< HEAD
-
-    m_stop = 0;
-    g_axis_x = NULL;
-    g_consigne = NULL;
-    m_consigne = 0;
-    m_oldconsigne = 0;
-    m_olx = 0;
-    m_moyennepath = NULL;
-    moyenne = 0;
-    m_timereset = 100;
-//    future = new QFuture<int>;
-
-    g_moyennepath = NULL;
-    g_datagraph = NULL;
-
-    yqpath = NULL;
-    ypath = NULL;
-    m_datapath= NULL;
-    yline= NULL;
-    yqline= NULL;
-    scene = new QGraphicsScene(this);
-    updateTimer = new QTimer(this);
-    view = new QGraphicsView(scene);
-
-
-    //    g_axis_x = new QGraphicsLineItem(ui->gridLayout->geometry().x(), ui->gridLayout->geometry().height()/2, ui->gridLayout->geometry().width(), ui->gridLayout->geometry().height()/2);
-
-    init_graph();
-
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(myupdate()), Qt::QueuedConnection);
-//    connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(update_graph(int)));
-
-    updateTimer->start(m_timereset);
-}
-
-
-void MainWindow::init_graph()
-{
-    if (g_moyennepath)
-        delete g_moyennepath;
-=======
     m_stop = 0;
     midline = NULL;
     m_olx = 0;
@@ -135,82 +67,24 @@ void MainWindow::init_graph()
 
 void MainWindow::init_graph()
 {
->>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
     if (scene)
         delete scene;
     scene = new QGraphicsScene(this);
     if (view)
         delete view;
-<<<<<<< HEAD
-    view = new QGraphicsView(scene);
-    g_axis_x = NULL;
-    g_moyennepath = NULL;
-    g_datagraph = NULL;
-=======
 
     view = new QGraphicsView(scene);
     midline = NULL;
->>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
     m_oldy = scene->height()/2;
     view->setGeometry(ui->gridLayout->geometry());
     ui->gridLayout->addWidget(view);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 }
 
 void MainWindow::myupdate()
 {
     static long long count = 0;
     static int posx = 0;
-<<<<<<< HEAD
-    static int posy = 0;
-    disconnect(updateTimer, SIGNAL(timeout()), this, SLOT(myupdate()));
-
-    temperature = serial->get_temp();
-
-    // Display temperature (lcdNumber)
-    ui->lcdN_Data->display(temperature);
-
-    // calc pos on view
-    posy = conv_y(temperature/10);
-    posx += m_dep_x;
-
-    if (posx > ui->gridLayout->geometry().width())
-        draw_background(posx);
-    if (count > 1 && posx > m_dep_x)
-    {
-        drawfirststep(posx, posy);
-    }
-    else
-    {
-        // first loop after reset
-        //  init part draw x axis
-        draw_background(0);
-    }
-
-    //  calc moyenne (qfuture)
-    moyenne_update(posx, posy, &count); // count++ here
-    endpos_update(&posx);
-    if (!m_moyennepath)
-    {
-        m_moyennepath = new QPainterPath();
-        m_moyennepath->moveTo(posx, moyenne / ((count < m_nbvalmoy) ? count : m_nbvalmoy));
-    }
-    m_moyennepath->lineTo(posx, moyenne / ((count < m_nbvalmoy) ? count : m_nbvalmoy));
-    setmoyenne( moyenne / ((count < m_nbvalmoy) ? count : m_nbvalmoy));
-
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(myupdate()), Qt::QueuedConnection);
-
-
-
-}
-
-
-
-=======
     static int posy = 0 ;
     moyenne = 0;
     posy = ui->gridLayout->geometry().height()/2 -temperature/10;
@@ -282,7 +156,7 @@ void MainWindow::myupdate()
             delete yqpath;
         yqpath = new QGraphicsPathItem();
         yqpath->setPath(*yqline);
-        yqline->setPen(yqpen);
+        // yqline->setPen(yqpen);
         scene->addItem(yqpath);
     }
 
@@ -327,16 +201,11 @@ void MainWindow::myupdate()
     setmoyenne(moyenne / ((count < NBVALMOY) ? count : NBVALMOY));
 
 }
->>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-<<<<<<< HEAD
-
-void MainWindow::on_b_stop_clicked()
-=======
 void    MainWindow::setmoyenne(int moyenne)
 {
     ui->lcdNumber->display(moyenne);
@@ -359,7 +228,6 @@ void    MainWindow::setmoyenne(int moyenne)
 }
 
 void MainWindow::on_pushButton_2_clicked()
->>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 {
     static int state = 0;
     state++;
@@ -377,119 +245,6 @@ void MainWindow::on_cBscroll_toggled(bool checked)
 {
     if (!checked)
     {
-<<<<<<< HEAD
-        if (m_olx + m_dep_x >  ui->gridLayout->geometry().width())
-            init_graph();
-    }
-
-}
-
-void MainWindow::on_send_clicked()
-{
-    double temp_send=ui->doubleSpinBox->value();
-    m_consigne = temp_send;
-    scene->removeItem(g_consigne);
-    if(g_consigne)
-    delete g_consigne;
-    g_consigne = NULL;
-    draw_background(0);
-    serial->write(ui->doubleSpinBox->text());
-    qDebug()<<temp_send;
-}
-
-void MainWindow::on_sB_Rand_valueChanged(int arg1)
-{
-    serial->set_rand(arg1);
-}
-
-void MainWindow::on_sB_speed_valueChanged(int arg1)
-{
-    serial->set_speed(arg1);
-}
-
-
-void MainWindow::on_sB_update_valueChanged(int arg1)
-{
-    updateTimer->stop();
-    m_timereset = arg1;
-    updateTimer->start(m_timereset);
-
-}
-
-void MainWindow::on_b_open_clicked()
-{
-    serial->set_sername(ui->tE_Name->toPlainText());
-    serial->set_speed(ui->sB_speed->value());
-    serial->set_baudrate(ui->cB_BaudRate->currentText().toInt());
-    switch (ui->cB_DataBits->currentIndex()) {
-    case 0:
-        serial->set_databits(8);
-        break;
-    case 1:
-        serial->set_databits(5);
-        break;
-    case 2:
-        serial->set_databits(6);
-        break;
-    case 3:
-        serial->set_databits(7);
-        break;
-    case 4:
-        serial->set_databits(-1);
-        break;
-    default:
-        break;
-    }
-    serial->set_parity(ui->cB_Parity->currentIndex());
-    serial->set_stopBits(ui->cB_StopBits->currentIndex());
-    serial->set_flowcontrol(ui->cB_FlowControl->currentIndex());
-    serial->openSerialPort();
-}
-
-void MainWindow::on_b_serClose_clicked()
-{
-    serial->closeSerialPort();
-}
-
-void MainWindow::on_sB_movex_valueChanged(int arg1)
-{
-    m_dep_x = arg1;
-}
-
-
-void MainWindow::on_radioButton_clicked()
-{
-    if (ui->radioButton->isEnabled())
-       g_moyennepath->hide();
-    else
-       g_moyennepath->show();
-}
-
-void MainWindow::on_sB_nbMoyenne_valueChanged(int arg1)
-{
-    m_nbvalmoy = arg1;
-       if (moytab)
-    delete moytab;
-       future.cancel();
-    moytab = (int*) malloc(sizeof(int) * m_nbvalmoy);
-
-    int i = m_nbvalmoy;
-    while (i--)
-    {
-        moytab[i] = 0;
-    }
-
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-
-}
-
-void MainWindow::on_doubleSpinBox_valueChanged(double arg1)
-{
-
-=======
         init_graph();
 
 
@@ -540,7 +295,7 @@ void MainWindow::on_send_clicked()
 {
     char temp[9];
     double temp_send=ui->doubleSpinBox->value();
-    sprintf(temp, "S%g", temp_send);
+    sprintf(temp, "C%g", temp_send);
     serial->write(temp);
     //test
 //    char test[10];
@@ -573,5 +328,4 @@ temperature=donnees.toInt() ;
 void MainWindow::on_radioButton_clicked()
 {
    moypath->hide();
->>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 }
