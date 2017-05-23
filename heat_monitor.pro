@@ -5,7 +5,10 @@
 #-------------------------------------------------
 
 QT       += core gui
+<<<<<<< HEAD
 QT += concurrent
+=======
+>>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 QT += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -27,18 +30,28 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
+<<<<<<< HEAD
     graph.cpp \
     serial.cpp \
     serialengine.cpp
 
 HEADERS  += mainwindow.h \
     serialengine.h
+=======
+    mygitem.cpp
+
+HEADERS  += mainwindow.h \
+    mygitem.h
+>>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 
 FORMS    += mainwindow.ui
 
 CONFIG += mobility
 MOBILITY = 
 
+<<<<<<< HEAD
 RESOURCES += \
     image.qrc
 
+=======
+>>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0

@@ -1,5 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+<<<<<<< HEAD
 
 #include <QMainWindow>
 #include <QFuture>
@@ -20,6 +21,18 @@ namespace Ui {
 class MainWindow;
 }
 extern int calc_moyenne(int *marray, int nb_val);
+=======
+#include <QtCore/QtGlobal>
+#include <QMainWindow>
+#include <QGraphicsView>
+#include <QtSerialPort/QSerialPort>
+#include <QPainterPath>
+
+#define NBVALMOY 250
+namespace Ui {
+class MainWindow;
+}
+>>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 
 class MainWindow : public QMainWindow
 {
@@ -30,6 +43,7 @@ public:
     ~MainWindow();
 
 private slots:
+<<<<<<< HEAD
     void myupdate();
     void on_b_stop_clicked();
     void quadrillage();
@@ -54,10 +68,31 @@ private slots:
     void on_pushButton_clicked();
 
     void on_doubleSpinBox_valueChanged(double arg1);
+=======
+    void on_pushButton_2_clicked();
+    void myupdate();
+    void setmoyenne(int moyenne);
+    void on_cBscroll_toggled(bool checked);
+    void init_graph();
+    void openSerialPort();
+    //void writeData(const QByteArray &data);
+    void closeSerialPort();
+   // void about(){};
+
+    void readData();
+    void just_read();
+    void handleError(QSerialPort::SerialPortError error);
+
+   void on_send_clicked();
+
+
+   void on_radioButton_clicked();
+>>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
+<<<<<<< HEAD
 
 
     QPainterPath *m_moyennepath;
@@ -96,6 +131,48 @@ private:
     bool m_stop;
 
 
+=======
+    QGraphicsLineItem *moyline;
+    QTimer *updateTimer;
+    QGraphicsView *view;
+    QGraphicsLineItem *midline;
+    QGraphicsPathItem *moypath;
+    QGraphicsPathItem *tempath;
+    QGraphicsPathItem *ypath;
+    QGraphicsPathItem *yqpath;
+    QPainterPath *pmoy;
+    QPainterPath *line_temp;
+    QPainterPath *yline;
+    QPainterPath *yqline;
+    int m_timereset;
+    int temperature;
+    int *moytab;
+    int moyenne;
+    int m_dep_x;
+    int m_olx;
+    int m_oldy;
+    bool m_stop;
+
+
+    struct Settings {
+        QString name;
+        qint32 baudRate;
+        QString stringBaudRate;
+        QSerialPort::DataBits dataBits;
+        QString stringDataBits;
+        QSerialPort::Parity parity;
+        QString stringParity;
+        QSerialPort::StopBits stopBits;
+        QString stringStopBits;
+        QSerialPort::FlowControl flowControl;
+        QString stringFlowControl;
+        bool localEchoEnabled;
+
+    };
+        QSerialPort *serial;
+        void initActionsConnections();
+        char buffer[6]={'0','0','0','0','0','0'};
+>>>>>>> a0a1bff0564b3ae3d26e3fb633296c1a792d51c0
 
 };
 
